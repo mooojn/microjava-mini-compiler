@@ -63,19 +63,19 @@ This document outlines the complete set of requirements for the CS-471L Compiler
 ## Section 5: Integration, Documentation, and Final Deliverables
 **Goal:** Combine all modules into a single application, prepare documentation, and get ready for the demo.
 
-- [ ] **Integration:**
-  - [ ] Link all modules (Lexer, 3 Parsers, Symbol Table, Error Handler) into one program.
-  - [ ] Ensure all modules build and run from a single command.
-  - [ ] Verify that all 3 parsers accept the same valid input and reject the same invalid input.
-- [ ] **Ensure Project Setup & Build Script:**
-  - [ ] Create a `Makefile` or batch file.
-  - [ ] Create folder structure: `src/`, `docs/`, `test/`, `output/`.
-  - [ ] Write a `README.md` with build and run instructions.
-- [ ] **Deliverable D3: Project Report in root in latex format (Week 16):**
-  - [ ] Include grammar specification.
-  - [ ] Describe each module.
-  - [ ] Detail construction of LR parsing table (show working).
-  - [ ] Discuss module integration.
-  - [ ] Include sample inputs and outputs.
-  - [ ] List limitations and references.
-  - [ ] Include LL(1) table, FIRST/FOLLOW sets, LR action/goto tables, and sample traces.
+- [x] **Integration:**
+  - [x] Link all modules (Lexer, 3 Parsers, Symbol Table, Error Handler) into one program.
+  - [x] Ensure all modules build and run from a single command.
+  - [x] Verify that all 3 parsers accept the same valid input and reject the same invalid input.
+- [x] **Ensure Project Setup & Build Script:**
+  - [x] Create a `Makefile` or batch file.
+  - [x] Create folder structure: `src/`, `docs/`, `test/`, `output/`.
+  - [x] Write a `README.md` with build and run instructions.
+- [x] **Deliverable D3: Project Report in root in latex format (Week 16):**
+  - [x] Include grammar specification.
+  - [x] Describe each module.
+  - [x] Detail construction of LR parsing table (show working).
+  - [x] Discuss module integration.
+  - [x] Include sample inputs and outputs.
+  - [x] List limitations and references.
+  - [x] Include LL(1) table, FIRST/FOLLOW sets, LR action/goto tables, and sample traces.

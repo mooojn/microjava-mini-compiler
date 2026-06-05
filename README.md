@@ -11,6 +11,7 @@ The project includes:
 - SLR(1) bottom-up parser with shift/reduce trace output.
 - Hash-based symbol table manager with nested scopes.
 - Shared error handler for lexical, syntactic, and semantic errors.
+- Integrated `compiler.exe` dispatcher for lexer, all three parsers, symbol table, and error handler.
 - Sample valid and invalid test programs.
 
 ## Project Structure
@@ -18,9 +19,12 @@ The project includes:
 ```text
 src/                  C source files and grammar table generator
 docs/                 Grammar, parsing tables, FIRST/FOLLOW sets, and traces
+output/               Generated build objects and demonstration outputs
 test/samples/         Valid and invalid MicroJava sample programs
 reqs.md               Completed project requirements checklist
 Makefile              Build targets for all executables
+build.bat             Windows one-command build script
+report.tex            Week 16 final report in LaTeX format
 ```
 
 ## Build
@@ -29,6 +33,12 @@ If `make` is installed:
 
 ```powershell
 make
+```
+
+On Windows, the simplest complete build command is:
+
+```powershell
+.\build.bat
 ```
 
 On Windows without `make`, build each executable directly:
@@ -51,6 +61,7 @@ Run the lexer:
 Run all parsers on a valid sample:
 
 ```powershell
+.\compiler.exe all test\samples\hello.mj
 .\recursive.exe test\samples\hello.mj
 .\predictive.exe test\samples\hello.mj
 .\lr.exe test\samples\hello.mj
@@ -69,6 +80,15 @@ Run syntax-error recovery examples:
 .\recursive.exe test\samples\invalid_missing_semicolon.mj
 .\predictive.exe test\samples\invalid_missing_semicolon.mj
 .\lr.exe test\samples\invalid_missing_semicolon.mj
+```
+
+Run individual modules through the integrated executable:
+
+```powershell
+.\compiler.exe lexer test\samples\hello.mj
+.\compiler.exe recursive test\samples\hello.mj --dump-symbols
+.\compiler.exe predictive test\samples\hello.mj
+.\compiler.exe lr test\samples\hello.mj
 ```
 
 ## Generate Grammar Artifacts
