@@ -1,0 +1,15 @@
+class Data {
+  char marker;
+  int values[10];
+
+  void fill() {
+    int i;
+    marker = 'A';
+    i = 0;
+    while (i < 10) {
+      values[i] = i;
+      i = i + 1;
+    }
+    return;
+  }
+}

@@ -1,0 +1,8 @@
+class BadSemantics {
+  int x;
+  int x;
+
+  void main() {
+    y = x + 1;
+  }
+}

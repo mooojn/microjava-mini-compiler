@@ -1,0 +1,13 @@
+class Factorial {
+  int result;
+
+  int fact(int n) {
+    int acc;
+    acc = 1;
+    while (n > 1) {
+      acc = acc * n;
+      n = n - 1;
+    }
+    return acc;
+  }
+}
