@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+lexer.exe
+lexer
+recursive.exe
+recursive
+predictive.exe
+predictive
+lr.exe
+lr
