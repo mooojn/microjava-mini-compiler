@@ -1,0 +1,51 @@
+﻿SLR(1) parser trace
+Grammar: original left-recursive expression grammar
+Step  States  Symbols  Remaining input  Action
+1     [0]  []  [class id { void id ( ) { ...]  shift 2
+2     [0 2]  [class]  [id { void id ( ) { print ...]  shift 3
+3     [0 2 3]  [class id]  [{ void id ( ) { print ( ...]  shift 4
+4     [0 2 3 4]  [class id {]  [void id ( ) { print ( number ...]  shift 11
+5     [0 2 3 4 11]  [class id { void]  [id ( ) { print ( number + ...]  reduce r11: Type -> void
+6     [0 2 3 4 7]  [class id { Type]  [id ( ) { print ( number + ...]  shift 14
+7     [0 2 3 4 7 14]  [class id { Type id]  [( ) { print ( number + number ...]  shift 15
+8     [0 2 3 4 7 14 15]  [class id { Type id (]  [) { print ( number + number * ...]  reduce r13: ParamListOpt -> epsilon
+9     [0 2 3 4 7 14 15 20]  [class id { Type id ( ParamListOpt]  [) { print ( number + number * ...]  shift 23
+10    [0 2 3 4 7 14 15 20 23]  [class id { Type id ( ParamListOpt )]  [{ print ( number + number * number ...]  shift 27
+11    [0 2 3 4 7 14 15 20 23 27]  [class id { Type id ( ParamListOpt ) {]  [print ( number + number * number ) ...]  shift 38
+12    [0 2 3 4 7 14 15 20 23 27 38]  [class id { Type id ( ParamListOpt ) { print]  [( number + number * number ) ; ...]  shift 50
+13    [0 2 3 4 7 14 15 20 23 27 38 50]  [class id { Type id ( ParamListOpt ) { print (]  [number + number * number ) ; return ...]  shift 60
+14    [0 2 3 4 7 14 15 20 23 27 38 50 60]  [class id { Type id ( ParamListOpt ) { print ( number]  [+ number * number ) ; return ; ...]  reduce r53: Factor -> number
+15    [0 2 3 4 7 14 15 20 23 27 38 50 55]  [class id { Type id ( ParamListOpt ) { print ( Factor]  [+ number * number ) ; return ; ...]  reduce r66: Term -> Factor
+16    [0 2 3 4 7 14 15 20 23 27 38 50 56]  [class id { Type id ( ParamListOpt ) { print ( Term]  [+ number * number ) ; return ; ...]  reduce r64: AddExpr -> Term
+17    [0 2 3 4 7 14 15 20 23 27 38 50 52]  [class id { Type id ( ParamListOpt ) { print ( AddExpr]  [+ number * number ) ; return ; ...]  shift 75
+18    [0 2 3 4 7 14 15 20 23 27 38 50 52 75]  [class id { Type id ( ParamListOpt ) { print ( AddExpr +]  [number * number ) ; return ; } ...]  reduce r47: AddOp -> +
+19    [0 2 3 4 7 14 15 20 23 27 38 50 52 77]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp]  [number * number ) ; return ; } ...]  shift 60
+20    [0 2 3 4 7 14 15 20 23 27 38 50 52 77 60]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp number]  [* number ) ; return ; } } ...]  reduce r53: Factor -> number
+21    [0 2 3 4 7 14 15 20 23 27 38 50 52 77 55]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp Factor]  [* number ) ; return ; } } ...]  reduce r66: Term -> Factor
+22    [0 2 3 4 7 14 15 20 23 27 38 50 52 77 105]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp Term]  [* number ) ; return ; } } ...]  shift 87
+23    [0 2 3 4 7 14 15 20 23 27 38 50 52 77 105 87]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp Term *]  [number ) ; return ; } } $]  reduce r49: MulOp -> *
+24    [0 2 3 4 7 14 15 20 23 27 38 50 52 77 105 89]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp Term MulOp]  [number ) ; return ; } } $]  shift 60
+25    [0 2 3 4 7 14 15 20 23 27 38 50 52 77 105 89 60]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp Term MulOp number]  [) ; return ; } } $]  reduce r53: Factor -> number
+26    [0 2 3 4 7 14 15 20 23 27 38 50 52 77 105 89 107]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp Term MulOp Factor]  [) ; return ; } } $]  reduce r65: Term -> Term
+27    [0 2 3 4 7 14 15 20 23 27 38 50 52 77 105]  [class id { Type id ( ParamListOpt ) { print ( AddExpr AddOp Term]  [) ; return ; } } $]  reduce r63: AddExpr -> AddExpr
+28    [0 2 3 4 7 14 15 20 23 27 38 50 52]  [class id { Type id ( ParamListOpt ) { print ( AddExpr]  [) ; return ; } } $]  reduce r62: Expr -> AddExpr
+29    [0 2 3 4 7 14 15 20 23 27 38 50 73]  [class id { Type id ( ParamListOpt ) { print ( Expr]  [) ; return ; } } $]  shift 103
+30    [0 2 3 4 7 14 15 20 23 27 38 50 73 103]  [class id { Type id ( ParamListOpt ) { print ( Expr )]  [; return ; } } $]  shift 114
+31    [0 2 3 4 7 14 15 20 23 27 38 50 73 103 114]  [class id { Type id ( ParamListOpt ) { print ( Expr ) ;]  [return ; } } $]  reduce r27: Stmt -> print
+32    [0 2 3 4 7 14 15 20 23 27 33]  [class id { Type id ( ParamListOpt ) { Stmt]  [return ; } } $]  shift 39
+33    [0 2 3 4 7 14 15 20 23 27 33 39]  [class id { Type id ( ParamListOpt ) { Stmt return]  [; } } $]  reduce r35: ExprOpt -> epsilon
+34    [0 2 3 4 7 14 15 20 23 27 33 39 54]  [class id { Type id ( ParamListOpt ) { Stmt return ExprOpt]  [; } } $]  shift 85
+35    [0 2 3 4 7 14 15 20 23 27 33 39 54 85]  [class id { Type id ( ParamListOpt ) { Stmt return ExprOpt ;]  [} } $]  reduce r22: Stmt -> return
+36    [0 2 3 4 7 14 15 20 23 27 33 33]  [class id { Type id ( ParamListOpt ) { Stmt Stmt]  [} } $]  reduce r19: StmtList -> epsilon
+37    [0 2 3 4 7 14 15 20 23 27 33 33 42]  [class id { Type id ( ParamListOpt ) { Stmt Stmt StmtList]  [} } $]  reduce r18: StmtList -> Stmt
+38    [0 2 3 4 7 14 15 20 23 27 33 42]  [class id { Type id ( ParamListOpt ) { Stmt StmtList]  [} } $]  reduce r18: StmtList -> Stmt
+39    [0 2 3 4 7 14 15 20 23 27 34]  [class id { Type id ( ParamListOpt ) { StmtList]  [} } $]  shift 43
+40    [0 2 3 4 7 14 15 20 23 27 34 43]  [class id { Type id ( ParamListOpt ) { StmtList }]  [} $]  reduce r17: Block -> {
+41    [0 2 3 4 7 14 15 20 23 26]  [class id { Type id ( ParamListOpt ) Block]  [} $]  reduce r7: MemberAfter -> (
+42    [0 2 3 4 7 14 17]  [class id { Type id MemberAfter]  [} $]  reduce r4: Member -> Type
+43    [0 2 3 4 5]  [class id { Member]  [} $]  reduce r3: MemberList -> epsilon
+44    [0 2 3 4 5 12]  [class id { Member MemberList]  [} $]  reduce r2: MemberList -> Member
+45    [0 2 3 4 6]  [class id { MemberList]  [} $]  shift 13
+46    [0 2 3 4 6 13]  [class id { MemberList }]  [$]  reduce r1: Program -> class
+47    [0 1]  [Program]  [$]  accept
+LR parser: ACCEPT
