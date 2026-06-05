@@ -1,0 +1,155 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{verbatim}
+\usepackage{longtable}
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  frame=single,
+  xleftmargin=0pt,
+  xrightmargin=0pt
+}
+
+\title{CS-471L Mini Compiler Project Report}
+\author{Group: 2023CS32, 2023CS36}
+\date{Week 16 Final Deliverable}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This project implements a mini compiler front end for a compact MicroJava subset. The completed system includes grammar analysis, lexical analysis, top-down parsing, bottom-up LR parsing, semantic analysis through a symbol table, centralized error handling, integration through a single dispatcher executable, and final demonstration outputs.
+
+\section{Grammar Specification}
+
+The source language supports classes, fields, arrays, methods, parameters, local declarations, assignment, calls, conditionals, loops, returns, printing, arithmetic expressions, relational expressions, character constants, and boolean constants.
+
+\subsection{Original and LL(1) Grammar}
+\lstinputlisting{docs/grammar.md}
+
+\section{FIRST and FOLLOW Sets}
+
+\lstinputlisting{docs/first_follow.md}
+
+\section{LL(1) Predictive Parsing Table}
+
+The non-recursive predictive parser uses the transformed non-left-recursive grammar and an explicit stack. Its parsing table is included below.
+
+\lstinputlisting{docs/ll1_table.md}
+
+\section{LR Parsing Table Construction}
+
+The bottom-up parser uses the original expression grammar, including left-recursive expression productions. The selected LR method is SLR(1), because the grammar's viable-prefix automaton and FOLLOW-set based reductions are sufficient for the implemented MicroJava subset without requiring canonical LR(1) item expansion.
+
+Construction steps:
+\begin{enumerate}
+  \item Augment the grammar with a new start production.
+  \item Build LR(0) item closures and goto transitions for terminals and non-terminals.
+  \item Create shift actions from terminal transitions.
+  \item Create reduce actions from completed items using FOLLOW sets of the production left-hand side.
+  \item Add accept action for the completed augmented production on end of input.
+  \item Store non-terminal transitions in the goto table.
+\end{enumerate}
+
+\subsection{LR Action and Goto Tables}
+\lstinputlisting{docs/lr_table.md}
+
+\section{Module Descriptions}
+
+\subsection{Lexical Analyzer}
+The lexer in \texttt{src/lexer.c} reads the source file with double buffering, tracks line and column numbers, skips whitespace and comments, recognizes keywords, identifiers, numbers, character constants, operators, and punctuation, and returns tokens on demand.
+
+\subsection{Recursive Descent Parser}
+The recursive descent parser in \texttt{src/recursive\_descent\_parser.c} implements one routine per grammar non-terminal. It uses the LL(1) transformed grammar and is also the parser connected to semantic analysis.
+
+\subsection{Predictive Parser}
+The predictive parser in \texttt{src/predictive\_parser.c} uses an explicit stack and the LL(1) table. It includes synchronization-based recovery for syntax errors.
+
+\subsection{LR Parser}
+The LR parser in \texttt{src/lr\_parser.c} uses a state stack, grammar-symbol stack, and the SLR(1) action/goto tables in \texttt{src/lr\_tables.h}. It prints a trace showing stack contents, remaining input, and each shift/reduce/accept/error action.
+
+\subsection{Symbol Table Manager}
+The symbol table in \texttt{src/symbol\_table.c} is hash-based and supports nested scopes through a linked scope chain. Each symbol stores name, kind, type, scope level, and declaration line. Insert, lookup, delete, and dump operations are implemented.
+
+\subsection{Error Handler}
+The shared error handler in \texttt{src/error\_handler.c} records lexical, syntactic, and semantic errors with line and column numbers, prints clear messages, and provides a final summary.
+
+\section{Integration}
+
+The project can be built as separate lab executables or as one integrated executable. The integrated program is implemented in \texttt{src/compiler.c}. It links the lexer, recursive parser, predictive parser, LR parser, symbol table, and error handler by compiling each parser entry point under a module-specific name and dispatching from a single \texttt{compiler.exe}.
+
+Important commands:
+\begin{verbatim}
+build.bat
+compiler.exe lexer test\samples\hello.mj
+compiler.exe recursive test\samples\hello.mj
+compiler.exe predictive test\samples\hello.mj
+compiler.exe lr test\samples\hello.mj
+compiler.exe all test\samples\hello.mj
+\end{verbatim}
+
+\section{Sample Inputs}
+
+\subsection{Valid Program: hello.mj}
+\lstinputlisting{test/samples/hello.mj}
+
+\subsection{Valid Program: factorial.mj}
+\lstinputlisting{test/samples/factorial.mj}
+
+\subsection{Valid Program: arrays\_and\_chars.mj}
+\lstinputlisting{test/samples/arrays_and_chars.mj}
+
+\subsection{Invalid Syntax Program}
+\lstinputlisting{test/samples/invalid_missing_semicolon.mj}
+
+\subsection{Invalid Semantic Program}
+\lstinputlisting{test/samples/invalid_semantic.mj}
+
+\section{Sample Outputs}
+
+\subsection{All Parsers on Valid Input}
+\lstinputlisting{output/valid_hello_all.txt}
+
+\subsection{All Parsers on Invalid Syntax Input}
+\lstinputlisting{output/invalid_missing_semicolon_all.txt}
+
+\subsection{Semantic Error Output}
+\lstinputlisting{output/invalid_semantic_recursive.txt}
+
+\subsection{Symbol Table Dump}
+\lstinputlisting{output/symbol_table_hello.txt}
+
+\section{LR Trace}
+
+\lstinputlisting{docs/hello_lr_trace_utf8.txt}
+
+\section{Limitations}
+
+\begin{itemize}
+  \item The compiler implements front-end analysis only; it does not generate intermediate code, assembly, or bytecode.
+  \item Semantic analysis checks declarations, redeclarations, scope nesting, and identifier usage, but it does not perform full type checking for every expression and function call.
+  \item The LR parser reports and recovers from syntax errors by consuming invalid lookahead tokens; recovery is suitable for demonstration but not a full production-grade diagnostic system.
+  \item The grammar is a compact MicroJava subset rather than the complete Java language.
+\end{itemize}
+
+\section{References}
+
+\begin{itemize}
+  \item Aho, Lam, Sethi, and Ullman, \textit{Compilers: Principles, Techniques, and Tools}.
+  \item CS-471L Compiler Construction Lab handouts.
+  \item Project grammar, parsing tables, and implementation files included in this repository.
+\end{itemize}
+
+\section{Conclusion}
+
+All required project sections are complete. The final repository includes grammar artifacts, lexer, three parsers, semantic analysis, error handling, integrated executable support, sample tests, demonstration outputs, and this final report.
+
+\end{document}
