@@ -1,4 +1,7 @@
 __pycache__/
+node_modules/
+dist/
+build/
 output/
 *.pyc
 lexer.exe
@@ -10,3 +13,6 @@ predictive.exe
 predictive
 lr.exe
 lr
+.venv/
+venv/
+env/

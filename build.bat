@@ -16,5 +16,6 @@ gcc -Wall -Wextra -std=c11 -c src\symbol_table.c -o output\symbol_table.o
 gcc -Wall -Wextra -std=c11 -c src\error_handler.c -o output\error_handler.o
 gcc -Wall -Wextra -std=c11 -c src\compiler.c -o output\compiler.o
 gcc output\compiler.o output\lexer_module.o output\recursive_module.o output\predictive_module.o output\lr_module.o output\symbol_table.o output\error_handler.o -o compiler.exe
+if errorlevel 1 exit /b 1
 
 echo Build complete.
