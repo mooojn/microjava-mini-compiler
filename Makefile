@@ -15,18 +15,18 @@ predictive: src/predictive_parser.c src/lexer.c src/lexer.h src/error_handler.c 
 lr: src/lr_parser.c src/lexer.c src/lexer.h src/lr_tables.h src/error_handler.c src/error_handler.h
 	$(CC) $(CFLAGS) src/lr_parser.c src/lexer.c src/error_handler.c -o lr
 
-output:
-	if not exist output mkdir output
+obj:
+	if not exist obj mkdir obj
 
-compiler: output src/compiler.c src/lexer.c src/lexer.h src/recursive_descent_parser.c src/predictive_parser.c src/lr_parser.c src/lr_tables.h src/symbol_table.c src/symbol_table.h src/error_handler.c src/error_handler.h
-	$(CC) $(CFLAGS) -DLEXER_STANDALONE -Dmain=lexer_main -c src/lexer.c -o output/lexer_module.o
-	$(CC) $(CFLAGS) -Dmain=recursive_main -c src/recursive_descent_parser.c -o output/recursive_module.o
-	$(CC) $(CFLAGS) -Dmain=predictive_main -c src/predictive_parser.c -o output/predictive_module.o
-	$(CC) $(CFLAGS) -Dmain=lr_main -c src/lr_parser.c -o output/lr_module.o
-	$(CC) $(CFLAGS) -c src/symbol_table.c -o output/symbol_table.o
-	$(CC) $(CFLAGS) -c src/error_handler.c -o output/error_handler.o
-	$(CC) $(CFLAGS) -c src/compiler.c -o output/compiler.o
-	$(CC) output/compiler.o output/lexer_module.o output/recursive_module.o output/predictive_module.o output/lr_module.o output/symbol_table.o output/error_handler.o -o compiler
+compiler: obj src/compiler.c src/lexer.c src/lexer.h src/recursive_descent_parser.c src/predictive_parser.c src/lr_parser.c src/lr_tables.h src/symbol_table.c src/symbol_table.h src/error_handler.c src/error_handler.h
+	$(CC) $(CFLAGS) -DLEXER_STANDALONE -Dmain=lexer_main -c src/lexer.c -o obj/lexer_module.o
+	$(CC) $(CFLAGS) -Dmain=recursive_main -c src/recursive_descent_parser.c -o obj/recursive_module.o
+	$(CC) $(CFLAGS) -Dmain=predictive_main -c src/predictive_parser.c -o obj/predictive_module.o
+	$(CC) $(CFLAGS) -Dmain=lr_main -c src/lr_parser.c -o obj/lr_module.o
+	$(CC) $(CFLAGS) -c src/symbol_table.c -o obj/symbol_table.o
+	$(CC) $(CFLAGS) -c src/error_handler.c -o obj/error_handler.o
+	$(CC) $(CFLAGS) -c src/compiler.c -o obj/compiler.o
+	$(CC) obj/compiler.o obj/lexer_module.o obj/recursive_module.o obj/predictive_module.o obj/lr_module.o obj/symbol_table.o obj/error_handler.o -o compiler
 
 run: lexer
 	./lexer test/samples/hello.mj
@@ -40,4 +40,4 @@ integrated: compiler
 	./compiler all test/samples/hello.mj
 
 clean:
-	del /Q lexer.exe lexer recursive.exe recursive predictive.exe predictive lr.exe lr compiler.exe compiler output\*.o 2>NUL || exit 0
+	del /Q lexer.exe lexer recursive.exe recursive predictive.exe predictive lr.exe lr compiler.exe compiler obj\*.o 2>NUL || exit 0
