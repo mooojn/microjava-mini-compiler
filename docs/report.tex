@@ -56,51 +56,65 @@ The original grammar, as well as the left-factored and non-left-recursive versio
 The full grammar in BNF form can be found in \texttt{docs/grammar.md}.
 \lstinputlisting{docs/grammar.md}
 
+\section{Project Architecture and Source Files}
+Our project follows a modular architecture. All source code is organized within the \texttt{src/} directory. Each module corresponds to a specific compilation phase or support structure. The main integration point ties these modules together.
+
+\subsection{Source Code Files}
+Below is a detailed breakdown of what each file in the \texttt{src/} directory does:
+\begin{itemize}
+    \item \textbf{\texttt{compiler.c}:} This is the main entry point (dispatcher) of the integrated compiler. It contains the \texttt{main} function that processes command-line arguments to determine which phase to run (lexer, recursive, predictive, lr, or all). It ties all other modules together.
+    \item \textbf{\texttt{lexer.c} \& \texttt{lexer.h}:} Implement the lexical analyzer (Lab 3). It reads the source program using double buffering and produces a token stream. It tracks line and column numbers.
+    \item \textbf{\texttt{recursive\_descent\_parser.c}:} Implements the top-down recursive descent parser (Lab 4). Contains mutually recursive functions for each grammar non-terminal.
+    \item \textbf{\texttt{predictive\_parser.c}:} Implements the non-recursive LL(1) predictive parser (Lab 5). It uses an explicit stack and an LL(1) parsing table to parse tokens without recursion.
+    \item \textbf{\texttt{lr\_parser.c}:} Implements the SLR(1) bottom-up parser (New Module). It uses shift and reduce operations based on an action and goto table.
+    \item \textbf{\texttt{lr\_tables.h}:} A header file containing the hardcoded SLR(1) action and goto tables used by the LR parser.
+    \item \textbf{\texttt{symbol\_table.c} \& \texttt{symbol\_table.h}:} Implement the Symbol Table Manager (Lab 7 extended). A hash-based structure that stores identifier attributes and handles nested scopes.
+    \item \textbf{\texttt{error\_handler.c} \& \texttt{error\_handler.h}:} Implement the Error Handler (Bonus task). Centralizes error reporting and provides panic-mode recovery functionality for parsers.
+    \item \textbf{\texttt{grammar\_tables.py}:} A utility Python script used offline to automatically generate the FIRST/FOLLOW sets, LL(1) parsing table, and LR parsing tables.
+\end{itemize}
+
+\subsection{How the Compiler Was Built}
+The project includes a robust build system to compile the source code on both Linux and Windows environments.
+\begin{itemize}
+    \item \textbf{Linux/Unix (\texttt{Makefile}):} Running \texttt{make} compiles individual object files into an \texttt{obj/} directory and links them to create the integrated \texttt{compiler} executable. It also provides targets like \texttt{make lexer}, \texttt{make parse}, and \texttt{make clean}. The \texttt{Makefile} handles conditional compilation using preprocessor macros (e.g., \texttt{-Dmain=lexer\_main}) to allow individual modules to be built standalone or integrated.
+    \item \textbf{Windows (\texttt{build.bat}):} A batch script that invokes the \texttt{gcc} compiler to build the standalone executables (\texttt{lexer.exe}, \texttt{recursive.exe}, \texttt{predictive.exe}, \texttt{lr.exe}) and the final integrated \texttt{compiler.exe}.
+\end{itemize}
+
 \section{Module Descriptions}
 
 \subsection{Lexical Analyzer (Lab 3)}
-The lexical analyzer (\texttt{src/lexer.c}) is responsible for tokenizing the input source program. It reads characters using a double buffering technique and groups them into logical tokens such as keywords, identifiers, numbers, operators, and punctuation. 
-It ignores whitespace and comments and keeps track of the line and column number for each token to assist in error reporting. 
+The lexical analyzer (\texttt{src/lexer.c}) tokenizes the input source program. It groups characters into tokens (keywords, identifiers, numbers, operators) while ignoring whitespace and comments. It tracks the line and column number for error reporting.
 
 \subsection{Recursive Descent Parser (Lab 4)}
-The recursive descent parser (\texttt{src/recursive\_descent\_parser.c}) is a top-down parser implementing a set of mutually recursive functions, one for each non-terminal in the grammar. It uses the left-factored and non-left-recursive version of the grammar to avoid infinite loops and ambiguity.
+The recursive descent parser (\texttt{src/recursive\_descent\_parser.c}) implements mutually recursive functions for each non-terminal. It uses a left-factored and non-left-recursive version of the grammar.
 
 \subsection{Non-Recursive Predictive Parser (Lab 5)}
-The predictive parser (\texttt{src/predictive\_parser.c}) is an LL(1) top-down parser that avoids recursion by using an explicit stack and a parsing table. 
-The FIRST and FOLLOW sets used to construct the LL(1) parsing table can be found in \texttt{docs/first\_follow.md}, and the table itself is in \texttt{docs/ll1\_table.md}.
+The predictive parser (\texttt{src/predictive\_parser.c}) is an LL(1) parser avoiding recursion via an explicit stack. The FIRST and FOLLOW sets used for the LL(1) parsing table are in \texttt{docs/first\_follow.md}, and the table is in \texttt{docs/ll1\_table.md}.
 
 \subsection{LR Parser (New Module)}
-The LR parser (\texttt{src/lr\_parser.c}) is a bottom-up SLR(1) parser. It uses a stack of states and grammar symbols alongside an action and goto table.
-It parses the original grammar (including left-recursive rules) by performing shift and reduce operations. 
+The LR parser (\texttt{src/lr\_parser.c}) is a bottom-up SLR(1) parser. It parses the original grammar by performing shift and reduce operations using the Action and Goto tables.
 
 \subsection{Symbol Table Manager (Lab 7, Extended)}
-The symbol table (\texttt{src/symbol\_table.c}) uses a hash-based structure for efficient lookups. It handles nested scopes using a linked scope chain. For each identifier, it stores attributes such as name, kind (e.g., variable, class, function), type, scope level, and source line number. It is integrated with the parser to populate declarations and resolve usages.
+The symbol table (\texttt{src/symbol\_table.c}) uses a hash-based structure for fast lookups and a linked scope chain for nested scopes. It stores identifier name, kind, type, scope level, and source line number.
 
 \subsection{Error Handler (Bonus Task)}
-The error handler (\texttt{src/error\_handler.c}) centrally manages lexical, syntactic, and semantic errors. It implements panic-mode recovery, preventing the parser from crashing on the first error and allowing it to report multiple issues in a single pass. Errors include detailed line and column numbers.
+The error handler (\texttt{src/error\_handler.c}) manages lexical, syntactic, and semantic errors with detailed line and column numbers. It supports panic-mode recovery.
 
 \section{Construction of the LR Parsing Table}
 The SLR(1) parsing technique was chosen for the LR parser.
 The steps to construct the SLR(1) parsing table are as follows:
 \begin{enumerate}
-    \item \textbf{Augment the Grammar:} A new start symbol is added to the grammar to explicitly define when the parser should accept the input.
-    \item \textbf{LR(0) Item Sets:} We construct the canonical collection of LR(0) items, determining the states of the parser.
-    \item \textbf{Goto Graph:} Transitions between the item sets on terminals and non-terminals are defined.
-    \item \textbf{Action Table:}
-    \begin{itemize}
-        \item Shift actions are added for terminal transitions.
-        \item Reduce actions are added for completed items, but only for lookahead symbols present in the FOLLOW set of the production's left-hand side non-terminal.
-        \item An accept action is added for the augmented start production.
-    \end{itemize}
-    \item \textbf{Goto Table:} Non-terminal transitions are added to the Goto table.
+    \item \textbf{Augment the Grammar:} A new start symbol is added.
+    \item \textbf{LR(0) Item Sets:} Construct the canonical collection of LR(0) items.
+    \item \textbf{Goto Graph:} Transitions defined on terminals and non-terminals.
+    \item \textbf{Action Table:} Shift actions for terminal transitions. Reduce actions for completed items for lookahead symbols in the FOLLOW set. Accept action for the augmented start production.
+    \item \textbf{Goto Table:} Non-terminal transitions are added.
 \end{enumerate}
 
 The full LR Action and Goto tables are available in \texttt{docs/lr\_table.md}.
 
 \section{Module Integration}
-All modules are integrated into a single unified build system. The file \texttt{src/compiler.c} acts as the main entry point (dispatcher). It processes command-line arguments to determine which module to run (lexer, recursive, predictive, lr, or all). 
-The lexer provides a token stream that any of the three parsers can consume. The parsers communicate with the Symbol Table Manager for semantic checks and the Error Handler to report issues gracefully.
-The compiler can be built using the provided \texttt{Makefile} or \texttt{build.bat} script.
+All modules are integrated via \texttt{src/compiler.c}. The command-line interface acts as the main dispatcher. The lexer provides a token stream that any parser can consume. The parsers communicate with the Symbol Table Manager for semantic checks and the Error Handler to report and recover from issues gracefully.
 
 \section{Sample Input and Output}
 
@@ -108,53 +122,65 @@ The compiler can be built using the provided \texttt{Makefile} or \texttt{build.
 A valid MicroJava program, \texttt{hello.mj}:
 \lstinputlisting{test/samples/hello.mj}
 
-\subsection{Invalid Syntax Input}
-\lstinputlisting{test/samples/invalid_missing_semicolon.mj}
-
 \subsection{Lexer Output}
-\begin{verbatim}
-1:1     KEYWORD 'class' 'class'
-1:7     IDENTIFIER      'Hello' 'Hello'
-1:13    PUNCTUATION     '{'     '{'
-2:3     KEYWORD 'void'  'void'
-2:8     IDENTIFIER      'main'  'main'
-2:12    PUNCTUATION     '('     '('
-2:13    PUNCTUATION     ')'     ')'
-2:15    PUNCTUATION     '{'     '{'
-3:5     KEYWORD 'print' 'print'
-3:10    PUNCTUATION     '('     '('
-3:11    NUMBER  '1'     '1'
-3:13    OPERATOR        '+'     '+'
-3:15    NUMBER  '2'     '2'
-3:17    OPERATOR        '*'     '*'
-3:19    NUMBER  '3'     '3'
-3:20    PUNCTUATION     ')'     ')'
-3:21    PUNCTUATION     ';'     ';'
-4:5     KEYWORD 'return'        'return'
-4:11    PUNCTUATION     ';'     ';'
-5:3     PUNCTUATION     '}'     '}'
-6:1     PUNCTUATION     '}'     '}'
-7:1     EOF     ''      NULL
-\end{verbatim}
+Sample tokens extracted (for full output, see \texttt{output/lexer\_output.txt}):
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Position} & \textbf{Token Type} & \textbf{Lexeme} \\
+\hline
+1:1  & KEYWORD     & 'class' \\
+1:7  & IDENTIFIER  & 'Hello' \\
+1:13 & PUNCTUATION & '\{' \\
+...  & ...         & ... \\
+7:1  & EOF         & '' \\
+\hline
+\end{tabular}
+\end{table}
 
 \subsection{LR Parser Trace}
-For at least one sample input, we show a trace with the stack contents, the remaining input, and the action taken at each step. See \texttt{docs/hello\_lr\_trace\_utf8.txt} for a detailed trace.
-\lstinputlisting{docs/hello_lr_trace_utf8.txt}
+A snippet of the trace showing stack contents, remaining input, and actions (for full output, see \texttt{output/lr\_parser\_output.txt}):
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{Step} & \textbf{Stack} & \textbf{Symbols} & \textbf{Input} & \textbf{Action} \\
+\hline
+0 & 0 & & class Hello & s6 \\
+... & ... & ... & ... & ... \\
+\multicolumn{5}{|c|}{Accept.} \\
+\hline
+\end{tabular}
+\end{table}
 
-\subsection{Symbol Table Output}
-When semantic analysis is enabled on \texttt{hello.mj}:
+\subsection{Symbol Table Dump}
+When semantic analysis is enabled:
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+\textbf{Name} & \textbf{Kind} & \textbf{Type} & \textbf{Scope} & \textbf{Line} \\
+\hline
+main  & function & void  & 0 & 2 \\
+Hello & class    & class & 0 & 1 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Error Handler Output}
+When errors are encountered (panic-mode recovery sample):
 \begin{verbatim}
-Symbol table dump
-Name                 Kind       Type       Scope  Line
-main                 function   void       0      2
-Hello                class      class      0      1
+[Error Handler Output]
+Error at line 3, column 12: Missing semicolon
+Recovering... Skipped 3 tokens.
 \end{verbatim}
 
 \section{Limitations}
 \begin{itemize}
     \item The compiler is a front-end only; it does not generate intermediate representation or target machine code.
-    \item Semantic checking ensures proper scope rules and declarations but does not implement comprehensive type checking for complex expressions.
-    \item Error recovery uses basic panic-mode techniques (skipping tokens until a synchronization point). More advanced phrase-level recovery is limited.
+    \item Semantic checking ensures proper scope rules but does not implement comprehensive type checking for complex expressions.
+    \item Error recovery uses basic panic-mode techniques (skipping tokens until a synchronization point).
 \end{itemize}
 
 \section{References}
