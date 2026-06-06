@@ -97,14 +97,4 @@ Run individual modules through the integrated executable:
 python src/grammar_tables.py
 ```
 
-Generated grammar artifacts are written under `docs/section1/`.
-
-## Completion Status
-
-All five planned project sections are implemented or prepared for final submission:
-
-- Section 1: Project foundation and lexical analyzer.
-- Section 2: Top-down parsers.
-- Section 3: Bottom-up LR parser.
-- Section 4: Semantic analysis and error handling.
-- Section 5: Integration, documentation, build setup, and final deliverable preparation.
+Generated grammar artifacts are written under `docs/`.
